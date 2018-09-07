@@ -30,28 +30,52 @@ static void modeClub(void):
 			
 		case 1:
 			//BEEP BEEP
-			if( (TimerTickAcc >= buzz_delay) && (buzzCounter<2) )
+			if( (TimerTickAcc >= buzz_delay) && (buzzCounter<=3) )
 			{
 				BUZZ_PORT ^= (1<<BUZZ_PIN);
-				buzz_delay = setTimerSec(0.05)
-			}
-		
-			rLedPeriod = setTimerSec(0.5);
+				buzz_delay = setTimerSec((10^((buzzCounter+1)%2))*0.05);
+				buzzCounter++;
+			} else if (buzzCounter>3) {
+				roundState = 2;	
+				precount_delay = setTimerSec(1);
+				precount_couter=10;
+			}			
 			break;
 			
 		case 2:
 			// PRECOUNT
-			if( (TimerTickAcc >= RLED_period) && (flashCounter<10) )
+			if( (TimerTickAcc >= precount_delay) && (precount_couter>=0) )
+			{	
+				precount_delay = setTimerSec(1);
+				display.print(precount_couter);
+				precount_couter--;
+				
+			} else if(precount_couter<0)
 			{
-				flashCounter++;
-				PORTLED ^= (1<<PINLED);
-			} else if(flashCounter=>10)
-			{
-				gLedPeriod = 
+				roundState = 3;
+				controlFlag = 0;
+				count_delay = setTimerSec(0.8);
+				counter_counter(240);
 			}
 			break;
 		case 3:
 			//COUNT
+			if(controlFlag == 0)
+			{
+				GLED_PORT != (1<<GLED_PIN);
+				BUZZ_PORT != (1<<BUZZ_PIN);
+				display.print(counter_counter)
+				if (TimerTickAcc>=count_delay)
+				{
+					controlFlag = 1;
+					BUZZ_PORT &= ~(1<<BUZZ_PIN);
+				}
+				
+			} else if(TimerTickAcc >= count_delay)
+			{
+				// controlFlag = 1;
+				display.print(counter_counter)
+			}
 			
 			
 			break;
